@@ -1,0 +1,37 @@
+<% extend 'layout' %>
+
+<article id="login" class="">
+	<div>
+		<header>Login</header>
+		<label for="username">User:</label>
+		<input id="username" type="text" placeholder="Username..." list="users" autocomplete="off"/>
+		<datalist id="users">
+			<% for user in @users: %>
+				<option value="<%- user %>"></option>
+			<% end %>
+		</datalist>
+
+		<span class="btn">Login</span>
+	</div>
+</article>
+
+<article id="log-center" class="">
+	<header></header>
+
+	<aside class="apps-box">
+		<div>Applications:</div>
+		<ul id="apps"></ul>
+	</aside>
+
+
+	<section>
+		<div class="toolbar">
+			<div id="btn-logout" class="btn"></div>
+			<div id="btn-clear" class="btn">Clear</div>
+		</div>
+
+		<div class="reference-popover hidden"></div>
+		<div id="console" class="">
+		</div>
+	</section>
+</article>
