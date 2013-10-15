@@ -2,12 +2,15 @@ define([
 	'lib/text!tpl/app-item.ect',
 	'lib/text!tpl/log-message.ect',
 	'lib/text!tpl/log-reference.ect',
-	'lib/text!tpl/log-object.ect'
+	'lib/text!tpl/log-object.ect',
+	'lib/text!tpl/user-carousel.ect'
 ], function(
 	appItem,
 	logMessage,
 	logReference,
-	logObject
+	logObject,
+	userCarousel,
+	userList
 ) {
 
 	return {
@@ -18,6 +21,9 @@ define([
 			'message': logMessage,
 			'reference': logReference,
 			'object': logObject
+		},
+		'comp': {
+			'user-carousel': userCarousel
 		}
 	};
 });

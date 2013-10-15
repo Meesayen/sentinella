@@ -38,6 +38,9 @@ define([
 						},
 						del: function(element) {
 							self._root.removeChild(element);
+						},
+						clear: function() {
+							self._root.innerHTML = '';
 						}
 					}
 				}

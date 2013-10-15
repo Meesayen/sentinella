@@ -53,12 +53,13 @@ define([
 			this.nodes.add(appItem.root);
 		},
 		_fillAppsList: function(apps) {
+			this.nodes.clear();
 			for (var i = 0, a; a = apps[i]; i++) {
 				this.add(a);
 			}
 		},
 		_onItemClick: function(data, item) {
-			if (this._selectedApp) {
+			if (this._selectedApp && this._selectedApp !== item) {
 				this._selectedApp.deselect();
 			}
 			this._selectedApp = item;

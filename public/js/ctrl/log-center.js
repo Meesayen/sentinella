@@ -21,6 +21,7 @@ define([
 	'lib/dom-handler',
 
 	'comp/app-list',
+	'comp/user-carousel',
 	'comp/console'
 ], function(
 	x,
@@ -30,6 +31,7 @@ define([
 	DomHandler,
 
 	AppList,
+	UserCarousel,
 	Console
 ) {
 	window.Logger = Logger;
@@ -41,48 +43,28 @@ define([
 			this._sourceUrl = '/log-center/stream';
 			this.user = null;
 			this.objectMaps = [];
-			this.loginPage = this.nodes.one('#login');
 			this.logCenterPage = this.nodes.one('#log-center');
 			this.console = new Console({
 				hook: '#console'
 			});
+			this.user = x.session.get('username');
+			this.userCarousel = new UserCarousel({
+				currentUser: this.user,
+				dataSource: 'log-center/users'
+			});
+			this.userCarousel.on('item:click', this.handleUserClick.bind(this));
+			this.nodes.one('.user-box').appendChild(this.userCarousel.root);
 			this.appList = new AppList({
 				hook: '#apps'
 			});
 			this.appList.on('item:click', this.handleAppClick.bind(this));
 			this.appList.on('filter:click', this.handleAppFilterClick.bind(this));
 			this._initBtns();
-			this.nodes.del(this.logCenterPage);
 		},
 		run: function() {
-			this.user = x.session.get('username');
-			if (!this.user) {
-				var loginBtn = x.query(this.loginPage, '.btn');
-				x.query(this.loginPage, 'input').focus();
-				loginBtn.addEventListener('click', function() {
-					var username = x.query(this.loginPage, 'input').value;
-					if (!username) {
-						return;
-					}
-
-					this.user = username;
-					x.session.set('username', this.user);
-					this.nodes.del(this.loginPage);
-					this.nodes.add(this.logCenterPage);
-					this.logoutBtn.innerHTML = 'Logout: ' + this.user;
-					this.logoutBtn.style.display = '';
-
-					this.appList.dataSource = '/log-center/'+ this.user + '/apps';
-					this.connectStream(this.user, null);
-				}.bind(this));
-			} else {
-					this.nodes.del(this.loginPage);
-					this.nodes.add(this.logCenterPage);
-					this.logoutBtn.innerHTML = 'Logout: ' + this.user;
-					this.logoutBtn.style.display = '';
-
-					this.appList.dataSource = '/log-center/'+ this.user + '/apps';
-					this.connectStream(this.user, null);
+			if (this.user) {
+				this.appList.dataSource = '/log-center/'+ this.user + '/apps';
+				this.connectStream(this.user, null);
 			}
 		},
 
@@ -95,6 +77,9 @@ define([
 				window.source = this._getSource(user);
 				source.addEventListener('addapp', function(e) {
 					this.appList.add(JSON.parse(e.data).app);
+				}.bind(this), false);
+				source.addEventListener('adduser', function(e) {
+					this.userCarousel.add(JSON.parse(e.data).user);
 				}.bind(this), false);
 			} else {
 				this.clearBtn.style.display = '';
@@ -121,9 +106,11 @@ define([
 		handleClearClick: function() {
 			this.console.clear();
 		},
-		handleLogoutClick: function() {
-			x.session.del('username');
-			window.location = window.location;
+		handleUserClick: function(user) {
+			this.user = user;
+			x.session.set('username', user);
+			this.appList.dataSource = '/log-center/'+ this.user + '/apps';
+			this.connectStream(this.user, null);
 		},
 
 
@@ -135,11 +122,8 @@ define([
 
 		_initBtns: function() {
 			this.clearBtn = this.logCenterPage.querySelector('#btn-clear');
-			this.logoutBtn = this.logCenterPage.querySelector('#btn-logout');
 			this.clearBtn.style.display = 'none';
-			this.logoutBtn.style.display = 'none';
 			this.clearBtn.addEventListener('click', this.handleClearClick.bind(this));
-			this.logoutBtn.addEventListener('click', this.handleLogoutClick.bind(this));
 		}
 	});
 

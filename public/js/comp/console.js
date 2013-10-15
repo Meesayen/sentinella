@@ -19,9 +19,7 @@ define([
 				this._root = document.createElement('div');
 				this._root.id = 'console';
 			}
-			var voidElement = document.createElement('div');
-			voidElement.classList.add('void');
-			this.nodes.add(voidElement);
+			this.clear();
 			this.objectMaps = [];
 			this._reference = x.query('.reference-popover');
 			this._root.addEventListener('click', this._expandReference.bind(this));
@@ -44,7 +42,7 @@ define([
 			}
 		},
 		clear: function() {
-			this._root.innerHTML = '<div class="void"></div>';
+			this._root.innerHTML = '<div class="padding-top"></div><div class="void"></div>';
 		},
 		setFilters: function(filterStates) {
 			this._setFilters(filterStates)
