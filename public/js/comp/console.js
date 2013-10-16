@@ -8,6 +8,11 @@ define([
 	DomHandler
 ) {
 
+	var CONSOLE_INITIAL_STATE = [
+		'<div class="padding-top"></div>',
+		'<div class="void"></div>'
+	].join('');
+
 	var Console = Class({
 		parent: DomHandler,
 		constructor: function(o) {
@@ -19,11 +24,10 @@ define([
 				this._root = document.createElement('div');
 				this._root.id = 'console';
 			}
-			this.clear();
 			this.objectMaps = [];
-			this._reference = x.query('.reference-popover');
+			this._referenceBox = x.query('.reference-box');
 			this._root.addEventListener('click', this._expandReference.bind(this));
-
+			this.clear();
 		},
 		write: function(data) {
 			var
@@ -42,7 +46,8 @@ define([
 			}
 		},
 		clear: function() {
-			this._root.innerHTML = '<div class="padding-top"></div><div class="void"></div>';
+			this._root.innerHTML = CONSOLE_INITIAL_STATE;
+			this._referenceBox.classList.add('hidden');
 		},
 		setFilters: function(filterStates) {
 			this._setFilters(filterStates)
@@ -89,28 +94,17 @@ define([
 		_expandReference: function(e) {
 			var
 				refEl = document.elementFromPoint(e.pageX, e.pageY),
-				refBaloon = this._reference;
+				refData = refEl.dataset,
+				refBox = this._referenceBox;
 
 			if (refEl.classList.contains('reference')) {
-				var
-					root = this._root,
-					refData = refEl.dataset,
-					refTop = (refEl.offsetTop +
-						refEl.clientHeight * 2 ) - root.scrollTop
-
-				refBaloon.innerHTML = x.render('log.object', {
+				refBox.innerHTML = '';
+				refBox.innerHTML = x.render('log.object', {
 					map: this.objectMaps[refData.logId][refData.id]
 				}, true);
-				if (refTop > root.clientHeight / 2 + root.offsetTop) {
-					refBaloon.classList.remove('hidden');
-					refTop -= refBaloon.offsetHeight + refEl.clientHeight * 3;
-					refBaloon.classList.add('hidden');
-				}
-				refBaloon.style.left = (refEl.offsetLeft + (refEl.clientWidth / 2)) + 'px';
-				refBaloon.style.top = refTop + 'px';
-				refBaloon.classList.remove('hidden');
+				refBox.classList.remove('hidden');
 			} else {
-				refBaloon.classList.add('hidden');
+				refBox.classList.add('hidden');
 			}
 		},
 		_setFilters: function(filterStates) {

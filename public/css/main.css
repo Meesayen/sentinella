@@ -24,6 +24,7 @@
   height: 80px;
 }
 #log-center section {
+  position: relative;
   -webkit-flex: 4;
   height: 90%;
   min-width: 520px;

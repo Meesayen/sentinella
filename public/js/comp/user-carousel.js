@@ -41,7 +41,6 @@ define([
 		},
 		_fillUserList: function() {
 			var len = this._users.length;
-			console.log(len);
 			if (len === 1) {
 				this._triggerUserClick(this._users[0]);
 				return;

@@ -55,43 +55,59 @@
 #console .timestamp {
   color: #8F8F8F;
 }
+#console .timestamp::selection {
+  background: #FFFFFF;
+  color: rgba(0, 0, 0, 0.8);
+}
 #console .padding-top {
   height: 5px;
 }
 #console .void {
   height: 15px;
 }
-#log-center .reference-popover {
+.console-box .reference-box {
+  -webkit-user-select: text;
   position: absolute;
-  width: 250px;
-  max-height: 200px;
+  top: 50px;
+  right: 10px;
+  width: 55%;
+  max-width: 380px;
+  max-height: 40%;
   padding: 15px;
   box-sizing: border-box;
-  background-color: #fdf4b4;
+  background-color: rgba(0, 0, 0, 0.4);
   font-size: 12px;
-  color: #383838;
+  color: rgba(255, 255, 255, .5);
   border-radius: 2px;
   box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
   opacity: 1;
   transition: opacity 150ms ease-in;
   margin-left: -55px;
   overflow: scroll;
+  transition: background 200ms linear,
+    color 200ms linear;
 }
-#log-center .reference-popover.hidden {
+.console-box .reference-box:hover {
+  background-color: rgba(0, 0, 0, 0.75);
+  color: #FFFFFF;
+}
+.console-box .reference-box.hidden {
   display: block !important;
   opacity: 0;
   top: -9999px !important;
   left: -9999px !important;
 }
-#log-center .reference-popover:after {
-  position: absolute;
-  content: '';
-  width: 0px;
-  height: 0px;
-  border-color: #fff3b2 transparent transparent transparent;
-  border-width: 15px;
-  top: -30px;
-  left: 50px;
-  border-style: solid;
-  -webkit-transform: rotate(-90deg) translateX(-16px);
+.console-box .reference-box::-webkit-scrollbar {
+  width: 8px;
+}
+.console-box .reference-box::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  background-clip: padding-box;
+  border: solid transparent;
+  min-height: 28px;
+  padding: 0px 0 0;
+  box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.2),     inset 0 -1px 0 rgba(0, 0, 0, 0.07);
+}
+.console-box .reference-box:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.9);
 }
