@@ -79,10 +79,14 @@ app.get('/log-center/stream/:user/:app', function(req, res) {
 
 	subscriber.on('message', function(channel, message) {
 		var data = JSON.parse(message);
-		if (channel === 'log' && data.user === user && data.app === app) {
-			var id = logHistory[data.user][data.app].length;
-			res.write('id: ' + id + '\n');
-			res.write("data: " + message + '\n\n');
+		if (channel === 'log' && data.user === user) {
+			if (data.app === app) {
+				var id = logHistory[data.user][data.app].length;
+				res.write('id: ' + id + '\n');
+				res.write("data: " + message + '\n\n');
+			}
+			res.write('event: new-log\n');
+			res.write("data: " + JSON.stringify({ app: data.app, type: data.type }) + '\n\n');
 		} else if (channel === 'new-app' && data.user === user) {
 			res.write('event: ' + data.event + '\n');
 			res.write("data: " + message + '\n\n');
@@ -117,7 +121,15 @@ app.get('/log-center/stream/:user/:app', function(req, res) {
 
 app.get('/log-center/users', function(req, res) {
 	var users = Object.keys(logHistory);
-	res.send(JSON.stringify(users));
+	if (req.query.username) {
+		if (req.query.username in logHistory) {
+			res.send(JSON.stringify({ exists: true }));
+		} else {
+			res.send(JSON.stringify({ exists: false }));
+		}
+	} else {
+		res.send(JSON.stringify(users));
+	}
 });
 
 app.get('/log-center/:user/apps', function(req, res) {
@@ -141,7 +153,6 @@ app.all('/log', function(req, res) {
 		user = data.user,
 		jsonData = JSON.stringify(data);
 
-	console.log(data);
 	if (user === undefined) {
 		user = 'global';
 	}

@@ -87,17 +87,30 @@ define([
 			return messageChunks.join(' ');
 		},
 		_expandReference: function(e) {
-			var refEl = document.elementFromPoint(e.pageX, e.pageY);
+			var
+				refEl = document.elementFromPoint(e.pageX, e.pageY),
+				refBaloon = this._reference;
+
 			if (refEl.classList.contains('reference')) {
-				var refData = refEl.dataset;
-				this._reference.style.left = (refEl.offsetLeft + (refEl.clientWidth / 2)) + 'px';
-				this._reference.style.top = (refEl.offsetTop + (refEl.clientHeight * 2)) + 'px';
-				this._reference.classList.remove('hidden');
-				this._reference.innerHTML = x.render('log.object', {
+				var
+					root = this._root,
+					refData = refEl.dataset,
+					refTop = (refEl.offsetTop +
+						refEl.clientHeight * 2 ) - root.scrollTop
+
+				refBaloon.innerHTML = x.render('log.object', {
 					map: this.objectMaps[refData.logId][refData.id]
 				}, true);
+				if (refTop > root.clientHeight / 2 + root.offsetTop) {
+					refBaloon.classList.remove('hidden');
+					refTop -= refBaloon.offsetHeight + refEl.clientHeight * 3;
+					refBaloon.classList.add('hidden');
+				}
+				refBaloon.style.left = (refEl.offsetLeft + (refEl.clientWidth / 2)) + 'px';
+				refBaloon.style.top = refTop + 'px';
+				refBaloon.classList.remove('hidden');
 			} else {
-				this._reference.classList.add('hidden');
+				refBaloon.classList.add('hidden');
 			}
 		},
 		_setFilters: function(filterStates) {

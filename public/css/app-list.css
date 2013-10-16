@@ -46,18 +46,24 @@
   font-family: serif;
   font-style: italic;
   padding: 0;
+  width: 81px;
 }
 #apps .app .filters .filter {
-  display: inline-block;
+  display: block;
+  margin-left: 3px;
+  float: left;
   cursor: pointer;
   height: 24px;
   width: 24px;
   padding: 0;
   text-align: center;
-  line-height: 24px;
+  line-height: 23px;
   border-radius: 3px;
   color: rgba(0, 0, 0, 0.8);
   text-shadow: 0 1px white;
+  box-sizing: border-box;
+  position: relative;
+  top: 0;
   box-sizing: border-box;
 }
 #apps .app .filters .filter[data-state="on"] {
@@ -75,14 +81,47 @@
 #apps .app input:checked ~ .filters .filter {
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.8), 0 0px 1px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
 }
 #apps .app input:checked ~ .filters .filter[data-state="on"] {
-  box-shadow: 0 1px rgba(255, 255, 255, 0.8), inset 0 1px 1px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px rgba(255, 255, 255, 0.8), inset 0 1px 1px rgba(0, 0, 0, 0.3);
   background: #00f5ff;
   color: rgba(0, 0, 0, 0.8);
+  border-top: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding-top: 2px;
 }
 #apps .app input:checked ~ .filters .filter[data-state="off"] {
   background: rgba(49, 27, 3, 0.04);
+}
+#apps .app input ~ .filters .filter:after,
+#apps .app input:checked ~ .filters .filter[data-state="off"]:after {
+    position: absolute;
+    content: attr(data-news);
+    font-size: 9px;
+    background: red;
+    height: 14px;
+    min-width: 12px;
+    border-radius: 2px;
+    color: rgba(255, 252, 247, 0.95);
+    font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
+    font-style: initial;
+    line-height: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.41), 0 1px 1px 0px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+    top: -5px;
+    right: -3px;
+    opacity: 0;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.31);
+    font-weight: bold;
+}
+#apps .app input:checked ~ .filters .filter[data-state="on"]:after {
+  opacity: 0 !important;
+}
+#apps .app input ~ .filters .filter.has-new:after,
+#apps .app input:checked ~ .filters .filter.has-new:after {
+  opacity: 1;
 }
 #apps .app label {
   display: block;

@@ -86,7 +86,7 @@ define([
 		xhr.open(method, url);
 		xhr.onload = function() {
 			if (this.status === 200) {
-				p.complete(JSON.parse(xhr.response));
+				p.complete(JSON.parse(this.response));
 			} else {
 				p.reject();
 			}
@@ -94,7 +94,12 @@ define([
 		xhr.onerror = function() {
 			p.reject();
 		};
-		xhr.send(params);
+		if (method === 'GET') {
+			xhr.send();
+		} else {
+			xhr.setRequestHeader("Content-Type", "application/json");
+			xhr.send(JSON.stringify(params));
+		}
 		return p;
 	};
 
@@ -150,7 +155,15 @@ define([
 		},
 		data: {
 			fetch: function(url, params) {
-				return _req('GET', url, params);
+				if (params) {
+					var queryChunks = [];
+					for (var k in params) {
+						queryChunks.push(k + '=' + params[k]);
+					}
+					url += '?';
+					url += queryChunks.join('&');
+				}
+				return _req('GET', url, null);
 			},
 			push: function(url, params) {
 				return _req('POST', url, params);

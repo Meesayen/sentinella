@@ -12,53 +12,63 @@ define([
 		parent: DomHandler,
 		constructor: function(o) {
 			this._root = x.render('comp.user-carousel', {
-				currentUser: o.currentUser || '<select user>'
+				currentUser: o.currentUser || 'no user'
 			});
 			this._currentUser = o.currentUser;
 			this._head = 0;
 			this._tail = 0;
+			this._userItems = this.nodes.every('.users .user');
 			this._userList = this.nodes.one('.users');
+			this._userListInitialized = false;
 			if (o.dataSource) {
-				x.data.fetch(o.dataSource, null)
+				x.data.fetch(o.dataSource)
 					.then(this._onUserFetched.bind(this));
 			} else {
 				this._users = o.users || [];
-				this._initUserList();
+				if (this._users.length) {
+					this._fillUserList();
+				}
 			}
 		},
 		add: function(user) {
-			console.log(user);
 			this._users.push({
 				name: user,
 				selected: user === this._currentUser
 			});
-			console.log(this._users);
-			this._fillUserList();
+			if (this._users.length < 5) {
+				this._fillUserList();
+			}
 		},
 		_fillUserList: function() {
 			var len = this._users.length;
-			if (len < 5) {
-				for (var i = 0; i < len; i++) {
-					if (this._users[i].name === this._currentUser) {
-						this._head = this._decreaseIndex(i);
-						this._tail = this._increaseIndex(i);
-						break;
-					}
-				}
-				var users = this._userItems;
-				users[2].innerText = this._users[this._increaseIndex(this._head)].name;
-				users[2].dataset.id = this._increaseIndex(this._head);
-				users[1].innerText = this._users[this._head].name;
-				users[1].dataset.id = this._head;
-				this._head = this._decreaseIndex(this._head);
-				users[0].innerText = this._users[this._head].name;
-				users[0].dataset.id = this._head;
-				users[3].innerText = this._users[this._tail].name;
-				users[3].dataset.id = this._tail;
-				this._tail = this._increaseIndex(this._tail);
-				users[4].innerText = this._users[this._tail].name;
-				users[4].dataset.id = this._tail;
+			console.log(len);
+			if (len === 1) {
+				this._triggerUserClick(this._users[0]);
+				return;
 			}
+			if (len > 1) {
+				this._initUserList();
+			}
+			for (var i = 0; i < len; i++) {
+				if (this._users[i].name === this._currentUser) {
+					this._head = this._decreaseIndex(i);
+					this._tail = this._increaseIndex(i);
+					break;
+				}
+			}
+			var users = this._userItems;
+			users[2].innerText = this._users[this._increaseIndex(this._head)].name;
+			users[2].dataset.id = this._increaseIndex(this._head);
+			users[1].innerText = this._users[this._head].name;
+			users[1].dataset.id = this._head;
+			this._head = this._decreaseIndex(this._head);
+			users[0].innerText = this._users[this._head].name;
+			users[0].dataset.id = this._head;
+			users[3].innerText = this._users[this._tail].name;
+			users[3].dataset.id = this._tail;
+			this._tail = this._increaseIndex(this._tail);
+			users[4].innerText = this._users[this._tail].name;
+				users[4].dataset.id = this._tail;
 		},
 		_onUserFetched: function(data) {
 			var currentUser = this._currentUser;
@@ -68,21 +78,23 @@ define([
 					selected: user === currentUser
 				}
 			});
-			this._initUserList();
+			if (this._users.length) {
+				this._fillUserList();
+			}
 		},
 		_initUserList: function() {
-			var len = this._users.length;
-			if (len > 1) {
-				this._root.classList.add('filled');
-				this.nodes.one('.hint').addEventListener('click', this._openCarousel.bind(this));
-				this._userList.addEventListener('wheel', this._onWheel.bind(this));
-				this._userList.addEventListener('mouseleave', this._triggerCloseCarousel.bind(this));
-				this._userList.addEventListener('mouseenter', this._cancelCloseCarousel.bind(this));
-				var users = this._userItems = this.nodes.every('.users .user');
-				for (var i = 0, u; u = users[i]; i++) {
-					u.addEventListener('click', this._onUserClick.bind(this));
-				}
-				this._fillUserList();
+			if (this._userListInitialized) {
+				return;
+			}
+			this._userListInitialized = true;
+			this._root.classList.add('filled');
+			this.nodes.one('.hint').addEventListener('click', this._openCarousel.bind(this));
+			this._userList.addEventListener('wheel', this._onWheel.bind(this));
+			this._userList.addEventListener('mouseleave', this._triggerCloseCarousel.bind(this));
+			this._userList.addEventListener('mouseenter', this._cancelCloseCarousel.bind(this));
+			var users = this._userItems;
+			for (var i = 0, u; u = users[i]; i++) {
+				u.addEventListener('click', this._onUserClick.bind(this));
 			}
 		},
 		next: function() {
@@ -123,6 +135,9 @@ define([
 		},
 		_onUserClick: function(e) {
 			var item = this._users[e.target.dataset.id];
+			this._triggerUserClick(item);
+		},
+		_triggerUserClick: function(item) {
 			this.nodes.one('.user .name').innerText = item.name;
 			this._closeCarousel();
 			this.emit('item:click', item.name);

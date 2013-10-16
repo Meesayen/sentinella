@@ -23,6 +23,7 @@ define([
 				this._root = document.createElement('ul');
 				this._root.id = 'apps';
 			}
+			this._apps = {};
 			this._selectedApp = null;
 			this._dataSource = o.dataSource || null;
 			this.refresh();
@@ -51,11 +52,22 @@ define([
 			appItem.on('item:click', this._onItemClick.bind(this));
 			appItem.on('filter:click', this._onFilterClick.bind(this));
 			this.nodes.add(appItem.root);
+			this._apps[appId] = appItem;
+		},
+		updateIndicators: function(message) {
+			this._apps[message.app].updateIndicators(message.type);
 		},
 		_fillAppsList: function(apps) {
+			for (var id in this._apps) {
+				this._apps[id].destroy();
+			}
 			this.nodes.clear();
+			this._apps = {};
 			for (var i = 0, a; a = apps[i]; i++) {
 				this.add(a);
+			}
+			if (Object.keys(this._apps).length) {
+				this._apps[apps[0]].click();
 			}
 		},
 		_onItemClick: function(data, item) {

@@ -17,7 +17,6 @@ define([
 	'lib/common',
 	'lib/class',
 	'lib/templates',
-	'lib/logger',
 	'lib/dom-handler',
 
 	'comp/app-list',
@@ -27,14 +26,12 @@ define([
 	x,
 	Class,
 	templates,
-	Logger,
 	DomHandler,
 
 	AppList,
 	UserCarousel,
 	Console
 ) {
-	window.Logger = Logger;
 
 	var LogCenter = Class({
 		parent: DomHandler,
@@ -47,13 +44,6 @@ define([
 			this.console = new Console({
 				hook: '#console'
 			});
-			this.user = x.session.get('username');
-			this.userCarousel = new UserCarousel({
-				currentUser: this.user,
-				dataSource: 'log-center/users'
-			});
-			this.userCarousel.on('item:click', this.handleUserClick.bind(this));
-			this.nodes.one('.user-box').appendChild(this.userCarousel.root);
 			this.appList = new AppList({
 				hook: '#apps'
 			});
@@ -62,10 +52,9 @@ define([
 			this._initBtns();
 		},
 		run: function() {
-			if (this.user) {
-				this.appList.dataSource = '/log-center/'+ this.user + '/apps';
-				this.connectStream(this.user, null);
-			}
+			this.user = x.session.get('username');
+			x.data.fetch('/log-center/users', {username: this.user})
+				.then(this._onUserExist.bind(this));
 		},
 
 		connectStream: function(user, app) {
@@ -75,27 +64,42 @@ define([
 			this.console.clear();
 			if (!app) {
 				window.source = this._getSource(user);
-				source.addEventListener('addapp', function(e) {
-					this.appList.add(JSON.parse(e.data).app);
-				}.bind(this), false);
-				source.addEventListener('adduser', function(e) {
-					this.userCarousel.add(JSON.parse(e.data).user);
-				}.bind(this), false);
 			} else {
 				this.clearBtn.style.display = '';
 				window.source = this._getSource(user, app);
 				source.addEventListener('message', function(e) {
 					this.console.write(JSON.parse(e.data));
 				}.bind(this), false);
-				source.addEventListener('addapp', function(e) {
-					this.appList.add(JSON.parse(e.data).app);
-				}.bind(this), false);
 			}
+			source.addEventListener('new-log', function(e) {
+				this.appList.updateIndicators(JSON.parse(e.data));
+			}.bind(this), false);
+			source.addEventListener('addapp', function(e) {
+				this.appList.add(JSON.parse(e.data).app);
+			}.bind(this), false);
+			source.addEventListener('adduser', function(e) {
+				this.userCarousel.add(JSON.parse(e.data).user);
+			}.bind(this), false);
 		},
 
 
 		// Events handlers ---------------------------------------------------------
 
+		_onUserExist: function(user) {
+			if (!user.exists) {
+				this.user = 'global';
+				x.session.del('username');
+			}
+			this.userCarousel = new UserCarousel({
+				currentUser: this.user === 'global' ? null : this.user,
+				dataSource: 'log-center/users'
+			});
+			this.userCarousel.on('item:click', this.handleUserClick.bind(this));
+			this.nodes.one('.user-box').appendChild(this.userCarousel.root);
+
+			this.appList.dataSource = '/log-center/'+ this.user + '/apps';
+			this.connectStream(this.user, null);
+		},
 		handleAppClick: function(item) {
 			this.app = item.id;
 			this.connectStream(this.user, this.app);

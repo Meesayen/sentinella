@@ -6,12 +6,18 @@ requirejs.config({
 });
 
 requirejs([
-	'ctrl/log-center'
+	'ctrl/log-center',
+	'lib/logger'
 ], function(
-	App
+	App,
+	Logger
 ) {
+
+	window.Logger = Logger;
+
 	var app = new App();
 	app.run();
+
 	window.onunload = function() {
 		source.close();
 	};
