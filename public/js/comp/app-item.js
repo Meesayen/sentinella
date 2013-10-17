@@ -60,18 +60,22 @@ define([
 			this._filterUpdated();
 		},
 		_onFilterClick: function(e) {
-			var
-				filter = e.target,
-				filterData = filter.dataset;
-
-			if (filterData.state === 'on') {
-				filterData.state = 'off';
+			if (!this._isSelected) {
+				this.nodes.one('input').click();
 			} else {
-				filterData.state = 'on';
-				filter.classList.remove('has-new');
-				filter.dataset.news = 0;
+				var
+					filter = e.target,
+					filterData = filter.dataset;
+
+				if (filterData.state === 'on') {
+					filterData.state = 'off';
+				} else {
+					filterData.state = 'on';
+					filter.classList.remove('has-new');
+					filter.dataset.news = 0;
+				}
+				this._filterUpdated();
 			}
-			this._filterUpdated();
 		},
 		_filterUpdated: function() {
 			var filterStates = this._filters.map(function(filter) {

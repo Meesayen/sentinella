@@ -47,9 +47,11 @@ define([
 			this.appList = new AppList({
 				hook: '#apps'
 			});
-			this.appList.on('item:click', this.handleAppClick.bind(this));
-			this.appList.on('filter:click', this.handleAppFilterClick.bind(this));
-			this._initBtns();
+			this.appList.on('item:click', this._onAppClick.bind(this));
+			this.appList.on('filter:click', this._onAppFilterClick.bind(this));
+			this.clearBtn = this.logCenterPage.querySelector('#btn-clear');
+			this.clearBtn.style.display = 'none';
+			this.clearBtn.addEventListener('click', this._onClearClick.bind(this));
 		},
 		run: function() {
 			this.user = x.session.get('username');
@@ -58,28 +60,31 @@ define([
 		},
 
 		connectStream: function(user, app) {
-			if (window.source) {
-				source.close();
+			if (!this._socket) {
+				var socket = this._socket = io.connect(window.location.origin);
+				socket.on('sentinel:new-log', function(data) {
+					if (this.user === data.user) {
+						if (this.app === data.app) {
+							this.console.write(data);
+						}
+						this.appList.updateIndicators(data);
+					}
+				}.bind(this));
+				socket.on('sentinel:new-app', function(data) {
+					if (this.user === data.user) {
+						this.appList.add(data.app);
+					}
+				}.bind(this));
+				socket.on('sentinel:new-user', function(data) {
+					this.userCarousel.add(data.user);
+				}.bind(this));
 			}
 			this.console.clear();
-			if (!app) {
-				window.source = this._getSource(user);
-			} else {
-				this.clearBtn.style.display = '';
-				window.source = this._getSource(user, app);
-				source.addEventListener('message', function(e) {
-					this.console.write(JSON.parse(e.data));
-				}.bind(this), false);
-			}
-			source.addEventListener('new-log', function(e) {
-				this.appList.updateIndicators(JSON.parse(e.data));
-			}.bind(this), false);
-			source.addEventListener('addapp', function(e) {
-				this.appList.add(JSON.parse(e.data).app);
-			}.bind(this), false);
-			source.addEventListener('adduser', function(e) {
-				this.userCarousel.add(JSON.parse(e.data).user);
-			}.bind(this), false);
+			this._socket.emit('console:disconnection');
+			this._socket.emit('console:connection', {
+				user: user,
+				app: app
+			});
 		},
 
 
@@ -94,40 +99,30 @@ define([
 				currentUser: this.user === 'global' ? null : this.user,
 				dataSource: 'log-center/users'
 			});
-			this.userCarousel.on('item:click', this.handleUserClick.bind(this));
+			this.userCarousel.on('item:click', this._onUserClick.bind(this));
 			this.nodes.one('.user-box').appendChild(this.userCarousel.root);
 
 			this.appList.dataSource = '/log-center/'+ this.user + '/apps';
 			this.connectStream(this.user, null);
 		},
-		handleAppClick: function(item) {
+		_onAppClick: function(item) {
 			this.app = item.id;
 			this.connectStream(this.user, this.app);
 		},
-		handleAppFilterClick: function(data) {
+		_onAppFilterClick: function(data) {
 			this.console.setFilters(data.filterStates);
 		},
-		handleClearClick: function() {
+		_onClearClick: function() {
 			this.console.clear();
 		},
-		handleUserClick: function(user) {
+		_onUserClick: function(user) {
+			if (this.user === user) {
+				return;
+			}
 			this.user = user;
 			x.session.set('username', user);
 			this.appList.dataSource = '/log-center/'+ this.user + '/apps';
 			this.connectStream(this.user, null);
-		},
-
-
-		// Private methods ---------------------------------------------------------
-		_getSource: function(user, app) {
-			app = app || 'dummy';
-			return new EventSource([this._sourceUrl, user, app].join('/'));
-		},
-
-		_initBtns: function() {
-			this.clearBtn = this.logCenterPage.querySelector('#btn-clear');
-			this.clearBtn.style.display = 'none';
-			this.clearBtn.addEventListener('click', this.handleClearClick.bind(this));
 		}
 	});
 

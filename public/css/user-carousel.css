@@ -20,7 +20,6 @@
 	border-radius: 2px;
 	box-shadow: 0 2px 3px 0px rgba(0, 0, 0, 0.1), inset 0 1px rgba(255, 255, 255, 0.77);
 	overflow: hidden;
-	cursor: pointer;
 }
 .carousel.activated > .user,
 .carousel.closed > .user {
@@ -54,6 +53,9 @@
 	opacity: 1;
 	transition: opacity 250ms ease-in-out 50ms, z-index 150ms linear 50ms;
 	z-index: 1;
+}
+.carousel.filled > .user {
+	cursor: pointer;
 }
 .carousel.activated .users,
 .carousel.closed .users {

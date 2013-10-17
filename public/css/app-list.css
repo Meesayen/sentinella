@@ -61,10 +61,10 @@
   border-radius: 3px;
   color: rgba(0, 0, 0, 0.8);
   text-shadow: 0 1px white;
-  box-sizing: border-box;
   position: relative;
   top: 0;
   box-sizing: border-box;
+  border: 1px solid transparent;
 }
 #apps .app .filters .filter[data-state="on"] {
   color: #00ABD6;
@@ -102,6 +102,7 @@
     background: red;
     height: 14px;
     min-width: 12px;
+    padding-right: 1px;
     border-radius: 2px;
     color: rgba(255, 252, 247, 0.95);
     font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;

@@ -8,11 +8,12 @@ var
 	ECT = require('ect'),
 	http = require('http'),
 	path = require('path'),
-	redis = require('redis'),
-	publisherClient = redis.createClient();
+	app = express(),
+	server = http.createServer(app),
+	io = require('socket.io').listen(server),
+	MongoClient = require('mongodb').MongoClient;
 
 var maxAge = 1000 * 60 * 60 * 24 * 365;
-var app = express();
 var ectRenderer = ECT({
 	watch: true,
 	ext: '.ect',
@@ -20,6 +21,59 @@ var ectRenderer = ECT({
 });
 
 
+var mongoConf;
+if (process.env.VCAP_SERVICES) {
+	// Configuration needed by the AppFog PaaS
+	io.configure(function () {
+		io.set('transports', ['xhr-polling']);
+		io.set('polling duration', 10);
+	});
+	var env = JSON.parse(process.env.VCAP_SERVICES);
+	mongoConf = env['mongodb-1.8'][0]['credentials'];
+} else {
+	mongoConf = {
+		'hostname': 'localhost',
+		'port': 27017,
+		'username': '',
+		'password': '',
+		'name': '',
+		'db': 'log-center'
+	};
+}
+var generateMongoUrl = function(obj) {
+	obj.hostname = (obj.hostname || 'localhost');
+	obj.port = (obj.port || 27017);
+	obj.db = (obj.db || 'test');
+	if (obj.username && obj.password) {
+		return [
+			'mongodb://',
+			obj.username,
+			':',
+			obj.password,
+			'@',
+			obj.hostname,
+			':',
+			obj.port,
+			'/',
+			obj.db
+		].join('');
+	} else {
+		return [
+			'mongodb://',
+			obj.hostname,
+			':',
+			obj.port,
+			'/',
+			obj.db
+		].join('');
+	}
+}
+
+var db;
+MongoClient.connect(generateMongoUrl(mongoConf),
+	{w:0, native_parser:true}, function(err, _db) {
+	db = _db;
+});
 
 // all environments
 app.set('port', process.env.PORT || 1337);
@@ -37,108 +91,97 @@ app.use(express.static(path.join(__dirname, 'public')));
 if ('development' == app.get('env')) {
 	app.use(express.errorHandler());
 }
-// Log History --------------------------------------------------
-var logHistory = {};
-var logHistoryLimit = 200;
-
 
 // Routes -------------------------------------------------------
 
 app.get('/', function(req, res){
-	var users = Object.keys(logHistory);
 	res.render('index', {
-		title: 'Log Center',
-		filters: [{
-			id: 'info',
-			label: 'Info'
-		},{
-			id: 'warning',
-			label: 'Warning'
-		},{
-			id: 'error',
-			label: 'Error'
-		}],
-		users: users
+		title: 'Log Center'
 	});
 });
 
-app.get('/log-center/stream/:user/:app', function(req, res) {
-	// req.socket.setTimeout(Infinity);
-	var messageCount = 0;
-	var subscriber = redis.createClient();
-	var user = req.params.user;
-	var app = req.params.app;
+io.sockets.on('connection', function(socket) {
+	socket.on('console:connection', function(data) {
+		var user = data.user;
+		var app = data.app;
 
-	subscriber.subscribe('log');
-	subscriber.subscribe('new-user');
-	subscriber.subscribe('new-app');
-
-	subscriber.on('error', function(e) {
-	  console.log('Redis Error: ' + e.stack);
-	});
-
-	subscriber.on('message', function(channel, message) {
-		var data = JSON.parse(message);
-		if (channel === 'log' && data.user === user) {
-			if (data.app === app) {
-				var id = logHistory[data.user][data.app].length;
-				res.write('id: ' + id + '\n');
-				res.write("data: " + message + '\n\n');
-			}
-			res.write('event: new-log\n');
-			res.write("data: " + JSON.stringify({ app: data.app, type: data.type }) + '\n\n');
-		} else if (channel === 'new-app' && data.user === user) {
-			res.write('event: ' + data.event + '\n');
-			res.write("data: " + message + '\n\n');
-		} else if (channel === 'new-user') {
-			res.write('event: ' + data.event + '\n');
-			res.write("data: " + message + '\n\n');
+		if (user && app) {
+			db.collection('users', function(err, users) {
+				users.findOne({
+					name: user
+				}, { _id: false, apps: true }, function(err, _user) {
+					if (_user) {
+						db.collection('apps', function(err, apps) {
+							apps.findOne({
+								_id: { '$in': _user.apps },
+								name: app
+							}, { logs: true, _id: false }, function(err, _app) {
+								if (_app) {
+									for (var i = 0, m; m = _app.logs[i]; i++) {
+										socket.emit('sentinel:new-log', JSON.parse(m));
+									}
+								}
+							});
+						});
+					}
+				});
+			});
 		}
-	});
 
-	res.writeHead(200, {
-		'Content-Type': 'text/event-stream',
-		'Cache-Control': 'no-cache',
-		'Connection': 'keep-alive'
-	});
-	res.write('\n');
-
-	if (!req.headers['last-event-id']) {
-		if (logHistory[user] !== undefined && logHistory[user][app] !== undefined) {
-			var history = logHistory[user][app];
-			for (var i = 0, m; m = history[i]; i++) {
-				res.write('id: ' + (i + 1) + '\n');
-				res.write("data: " + m + '\n\n');
-			}
-		}
-	}
-
-	req.on('close', function() {
-		subscriber.unsubscribe();
-		subscriber.quit();
+		socket.on('disconnect', function() {
+			console.log('DISCONNECTED');
+		})
 	});
 });
 
 app.get('/log-center/users', function(req, res) {
-	var users = Object.keys(logHistory);
-	if (req.query.username) {
-		if (req.query.username in logHistory) {
-			res.send(JSON.stringify({ exists: true }));
+	db.collection('users', function(err, users) {
+		if (req.query.username) {
+			users.findOne({ name: req.query.username }, function(err, user) {
+				if (user) {
+					res.send(JSON.stringify({ exists: true }));
+				} else {
+					res.send(JSON.stringify({ exists: false }));
+				}
+			});
 		} else {
-			res.send(JSON.stringify({ exists: false }));
+			users.find({}, { _id: false, name: true }, function(err, users) {
+				users.toArray(function(err, users) {
+					var userNames = [];
+					for (var i = 0, u; u = users[i]; i++) {
+						userNames.push(u.name);
+					};
+					res.send(JSON.stringify(userNames));
+				});
+			});
 		}
-	} else {
-		res.send(JSON.stringify(users));
-	}
+	});
 });
 
 app.get('/log-center/:user/apps', function(req, res) {
-	if (logHistory[req.params.user] === undefined) {
-		res.send(JSON.stringify([]));
-	} else {
-		var apps = Object.keys(logHistory[req.params.user]);
-		res.send(JSON.stringify(apps));
-	}
+	db.collection('users', function(err, users) {
+		users.findOne({
+			name: req.params.user
+		}, { _id: false, apps: true }, function(err, user) {
+			if (!user) {
+				res.send(JSON.stringify([]));
+				return;
+			}
+			db.collection('apps', function(err, apps) {
+				apps.find({
+					_id: { '$in': user.apps }
+				}, { name: true, _id: false }, function(err, apps) {
+					apps.toArray(function(err, apps) {
+						var appNames = [];
+						for (var i = 0, a; a = apps[i]; i++) {
+							appNames.push(a.name);
+						};
+						res.send(JSON.stringify(appNames));
+					});
+				});
+			});
+		});
+	});
 });
 
 app.all('/log', function(req, res) {
@@ -157,29 +200,48 @@ app.all('/log', function(req, res) {
 		user = 'global';
 	}
 
-	if (logHistory[user] === undefined) {
-		publisherClient.publish('new-user', JSON.stringify({
-			'event': 'adduser',
-			'user': user
-		}));
-		logHistory[user] = {};
-	}
-	if (logHistory[user][app] === undefined) {
-		publisherClient.publish('new-app', JSON.stringify({
-			'event': 'addapp',
-			'user': user,
-			'app': app
-		}));
-		logHistory[user][app] = [];
-	}
-	if (logHistory[user][app].length === logHistoryLimit) {
-		logHistory[user][app].shift();
-	}
-	logHistory[user][app].push(jsonData);
+	db.collection('users', function(err, users) {
+		users.findOne({ name: user }, function(err, _user) {
+			if (!_user) {
+				io.sockets.emit('sentinel:new-user', {
+					'event': 'adduser',
+					'user': user
+				});
+				_user = {
+					name: user,
+					apps: []
+				}
+				users.save(_user, {w:0});
+			}
+			db.collection('apps', function(err, apps) {
+				apps.findOne({
+					_id: { '$in': _user.apps },
+					name: app
+				}, function(err, _app) {
+					if (!_app) {
+						io.sockets.emit('sentinel:new-app', {
+							'event': 'addapp',
+							'user': user,
+							'app': app
+						});
+						_app = {
+							name: app,
+							logs: []
+						};
+						apps.save(_app, {w:0});
+						_user.apps.push(_app._id);
+						users.save(_user, {w:0});
+					}
+					_app.logs.push(jsonData);
+					apps.save(_app, {w:0});
+					io.sockets.emit('sentinel:new-log', data);
+				});
+			});
+		});
+	});
 
-	publisherClient.publish('log', jsonData);
 	res.end();
 });
-http.createServer(app).listen(app.get('port'), function(){
+server.listen(app.get('port'), function(){
 	console.log('Express server listening on port ' + app.get('port'));
 });
