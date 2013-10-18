@@ -8,6 +8,8 @@ define([
 	DomHandler
 ) {
 
+	var WHEEL_EVT = 'onwheel' in window ? 'wheel' : 'mousewheel';
+
 	var UserCarousel = Class({
 		parent: DomHandler,
 		constructor: function(o) {
@@ -88,7 +90,7 @@ define([
 			this._userListInitialized = true;
 			this._root.classList.add('filled');
 			this.nodes.one('.hint').addEventListener('click', this._openCarousel.bind(this));
-			this._userList.addEventListener('wheel', this._onWheel.bind(this));
+			this._userList.addEventListener(WHEEL_EVT, this._onWheel.bind(this));
 			this._userList.addEventListener('mouseleave', this._triggerCloseCarousel.bind(this));
 			this._userList.addEventListener('mouseenter', this._cancelCloseCarousel.bind(this));
 			var users = this._userItems;
