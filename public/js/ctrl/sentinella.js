@@ -1,5 +1,5 @@
 // <pre>
-//	log-center.js  1.0.0
+//	sentinella.js  1.0.0
 //
 //
 //    _/_/_/  _/_/      _/_/      _/_/      _/_/_/    _/_/_/  _/    _/    _/_/    _/_/_/
@@ -40,7 +40,7 @@ define([
 			this._sourceUrl = '/log-center/stream';
 			this.user = null;
 			this.objectMaps = [];
-			this.logCenterPage = this.nodes.one('#log-center');
+			this.logCenterPage = this.nodes.one('#sentinel');
 			this.console = new Console({
 				hook: '#console'
 			});

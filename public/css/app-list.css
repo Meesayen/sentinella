@@ -1,4 +1,4 @@
-#log-center aside {
+#sentinel aside {
   -webkit-flex: 1;
   max-width: 200px;
   min-width: 130px;
@@ -6,7 +6,7 @@
   margin: 0 15px;
   -webkit-user-select: none;
 }
-#log-center aside .apps-list-label {
+#sentinel aside .apps-list-label {
   display: inline-block;
   padding: 8px 0 5px 0;
   font-size: 12px;

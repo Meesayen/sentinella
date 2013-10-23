@@ -6,7 +6,7 @@ requirejs.config({
 });
 
 requirejs([
-	'ctrl/log-center',
+	'ctrl/sentinella',
 	'lib/logger'
 ], function(
 	App,

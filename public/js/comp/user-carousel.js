@@ -163,7 +163,7 @@ define([
 		},
 		_onWheel: function(e) {
 			if (!this._delayingWheel) {
-				this._delayingWheel = setTimeout(this._stopDelayingWheel.bind(this), 200);
+				this._delayingWheel = setTimeout(this._stopDelayingWheel.bind(this), 400);
 				if (e.wheelDelta < 0) {
 					this.next();
 				} else {

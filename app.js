@@ -13,7 +13,9 @@ var
 	io = require('socket.io').listen(server),
 	MongoClient = require('mongodb').MongoClient;
 
-var maxAge = 1000 * 60 * 60 * 24 * 365;
+var MAX_LOGS_PER_APP = 200;
+
+
 var ectRenderer = ECT({
 	watch: true,
 	ext: '.ect',
@@ -231,6 +233,9 @@ app.all('/log', function(req, res) {
 						apps.save(_app, {w:0});
 						_user.apps.push(_app._id);
 						users.save(_user, {w:0});
+					}
+					if (_app.logs.length === MAX_LOGS_PER_APP) {
+						_app.logs.shift();
 					}
 					_app.logs.push(jsonData);
 					apps.save(_app, {w:0});

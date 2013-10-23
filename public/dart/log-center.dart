@@ -1,5 +1,5 @@
 // <pre>
-//	log-center.dart  1.0.0
+//	sentinella.dart  0.6.0
 //
 //
 //    _/_/_/  _/_/      _/_/      _/_/      _/_/_/    _/_/_/  _/    _/    _/_/    _/_/_/
@@ -30,7 +30,7 @@ class LogCenter {
 
   LogCenter() {
     loginPage = query('#login');
-    consolePage = query('#log-center');
+    consolePage = query('#sentinel');
     console = query('#console');
   }
 
@@ -203,7 +203,7 @@ class LogCenter {
   }
 
   _initFilters() {
-    var filters = queryAll('#log-center .filter input');
+    var filters = queryAll('#sentinel .filter input');
     for (final f in filters) {
       f.on.click.add((e) {
         var toScroll = false;

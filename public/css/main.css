@@ -7,7 +7,7 @@
 @import url(login.css);
 
 
-#log-center {
+#sentinel {
   display: -webkit-flex;
   width: 80%;
   height: 100%;
@@ -16,26 +16,26 @@
   box-sizing: border-box;
   -webkit-user-select: none;
 }
-#log-center header {
+#sentinel header {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 80px;
 }
-#log-center section {
+#sentinel section {
   position: relative;
   -webkit-flex: 4;
   height: 90%;
   min-width: 520px;
 }
 
-#log-center .toolbar {
+#sentinel .toolbar {
   -webkit-user-select: none;
   height: 40px;
 }
 
-#log-center .btn {
+#sentinel .btn {
   float: right;
   display: inline-block;
   cursor: pointer;
@@ -48,12 +48,12 @@
   border-radius: 3px;
   box-shadow: 0 1px rgba(255, 255, 255, 0.6), inset 0 1px 1px 0px rgba(255, 255, 255, 0.6);
 }
-#log-center .btn:hover {
+#sentinel .btn:hover {
   -webkit-animation: pulse 1400ms infinite linear;
   background-color: rgba(255, 255, 255, 0.3);
   color: rgba(0, 0, 0, 0.8);
 }
-#log-center .btn:active {
+#sentinel .btn:active {
   -webkit-animation: none;
   color: rgba(0, 0, 0, 0.5);
   background-color: rgba(0, 0, 0, 0.04);
