@@ -111,3 +111,23 @@
 .console-box .reference-box:hover::-webkit-scrollbar-thumb {
   background-color: rgba(255, 255, 255, 0.9);
 }
+.console-box .reference-box .type-number {
+    color: rgba(255, 143, 0, 0.5);
+    transition: color 200ms linear;
+}
+.console-box .reference-box {}
+.console-box .reference-box {}
+.console-box .reference-box:hover .type-number {
+    color: rgba(255, 143, 0, .9);
+}
+.console-box .reference-box .type-string {
+    color: rgba(127, 214, 58, 0.5);
+    transition: color 200ms linear;
+}
+.console-box .reference-box:hover .type-string {
+    color: rgba(127, 214, 58, 0.9);
+}
+.console-box .reference-box .type-string:before,
+.console-box .reference-box .type-string:after {
+    content: '"'
+}
