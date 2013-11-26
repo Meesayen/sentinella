@@ -35,7 +35,7 @@ To use the logger module you can import it like a normal javascript library or u
 It uses the singleton pattern to give you the same instance everytime you attempt to create a new logger with the same appName.
 
 The logger configuration is very simple. When you create an instance of it you pass it an appName and a set of options, both optional. Example:
-    
+
     var log = new Logger('awesome-app', {
       user: 'the-coolest',                 // optional
       url: 'http://84.10.147.29:1337',     // optional too
@@ -48,9 +48,9 @@ The latter is used to force the logger to send messages to the server when you r
 You can also set multiple users with the method `addUser(username)`, example:
 
     var log = new Logger();             // default user 'global'
-    log.log('Hello, World...');         // this message will be shown on the 'global' user stream
+    log.log('Hello, World...');         // this log will be shown on the 'global' user stream
     log.addUser('raziel');
-    log.raziel.log('Hello, Nosgoth!');  // this message will be delivered only to the 'raziel' user stream
+    log.raziel.log('Hello, Nosgoth!');  // this log will only be shown on the 'raziel' user stream
 
 You can set log levels for each message using the appropriate methods:
 
@@ -59,6 +59,6 @@ You can set log levels for each message using the appropriate methods:
     log.err();  // log level ERROR
 
 
- 
+
 [mongodb]: http://docs.mongodb.org/manual/
 [localhost]: http://localhost:1337
