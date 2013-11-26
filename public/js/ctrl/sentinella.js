@@ -50,7 +50,7 @@ define([
 			this.appList.on('item:click', this._onAppClick.bind(this));
 			this.appList.on('filter:click', this._onAppFilterClick.bind(this));
 			this.clearBtn = this.logCenterPage.querySelector('#btn-clear');
-			this.clearBtn.style.display = 'none';
+			// this.clearBtn.style.display = 'none';
 			this.clearBtn.addEventListener('click', this._onClearClick.bind(this));
 		},
 		run: function() {

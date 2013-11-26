@@ -1,17 +1,13 @@
-// <pre>
-//	logger.js  1.0.0
-//
-//
-//    _/_/_/  _/_/      _/_/      _/_/      _/_/_/    _/_/_/  _/    _/    _/_/    _/_/_/
-//   _/    _/    _/  _/_/_/_/  _/_/_/_/  _/_/      _/    _/  _/    _/  _/_/_/_/  _/    _/
-//  _/    _/    _/  _/        _/            _/_/  _/    _/  _/    _/  _/        _/    _/
-// _/    _/    _/    _/_/_/    _/_/_/  _/_/_/      _/_/_/    _/_/_/    _/_/_/  _/    _/
-//                                                              _/
-//                                                         _/_/
-//
-//	(c) 2012 Federico Giovagnoli (meesayen)
-//	Logger may be freely distributed under the MIT license.
-// </pre>
+/*!
+ * logger.js 1.1.0
+ * Polyfunctional logger class. Its main purpose is to push logs to its
+ * companion, Sentinella, a web console written on top of node.js,
+ * distributed under the MIT license.
+ *
+ * Copyright 2013, Federico Giovagnoli <mailto:gvg.fede@gmail.com>
+ * Released under the MIT license
+ */
+
 
 (function() {
 
@@ -117,7 +113,7 @@ Logger.prototype = {
 
 	_createInstance: function(name, opts) {
 		this._channel = name;
-		this._user = opts.user || 'meesayen';
+		this._user = opts.user || 'global';
 		this._tmpUser = null;
 		this._url = (opts.url || 'http://localhost:1337') + '/log';
 
