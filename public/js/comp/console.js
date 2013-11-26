@@ -76,9 +76,13 @@ define([
 			var logId = this.objectMaps.length;
 			for (var i = 0, l = data.length; i < l; i++) {
 				item = data[i];
-				if (typeof item === 'number' || typeof item === 'string') {
-					messageChunks.push(item);
+				if (typeof item === 'number'
+						|| typeof item === 'string'
+						|| typeof item === 'boolean'
+						|| !item) {
+					messageChunks.push('' + item);
 				} else {
+					console.log(item);
 					var id = objectMap.length;
 					objectMap.push(item);
 					messageChunks.push(x.render('log.reference', {
