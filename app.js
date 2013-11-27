@@ -14,6 +14,7 @@ var
 	MongoClient = require('mongodb').MongoClient;
 
 var MAX_LOGS_PER_APP = 200;
+var ADMIN_PASSWORD = 'legacyoflog';
 
 
 var ectRenderer = ECT({
@@ -96,10 +97,78 @@ if ('development' == app.get('env')) {
 
 // Routes -------------------------------------------------------
 
-app.get('/', function(req, res){
+
+app.get('/', function(req, res) {
 	res.render('index', {
 		title: 'Log Center'
 	});
+});
+
+app.get('/clear/:user?*/:app?*', function(req, res) {
+	if (req.query.pw && req.query.pw == ADMIN_PASSWORD) {
+		var
+			userId = req.params.user,
+			appId = req.params.app;
+
+		db.collection('users', function(err, users) {
+			if (userId) {
+				users.findOne({ name: userId }, function(err, user) {
+					if (!err && user) {
+						db.collection('apps', function(err, apps) {
+							if (appId) {
+								apps.findOne({
+									_id: { '$in': user.apps },
+									name: appId
+								}, function(err, app) {
+									if (!err && app) {
+										app.logs = [];
+										apps.save(app, {w:0});
+										res.send(200);
+									} else {
+										res.send(err ? 500 : 404)
+									}
+								});
+							} else {
+								apps.find({
+									_id: { '$in': user.apps }
+								}).toArray(function(err, _apps) {
+									if (!err && _apps && _apps[0]) {
+										for (var i = 0, app; app = _apps[i]; i++) {
+											app.logs = [];
+											apps.save(app, {w:0});
+										}
+										res.send(200);
+									} else {
+										res.send(err ? 500 : 404);
+									}
+								});
+							}
+						});
+					} else {
+						res.send(err ? 500 : 404);
+					}
+				});
+			} else {
+				db.collection('apps', function(err, apps) {
+					apps.find().toArray(function(err, _apps) {
+						if (!err && _apps && _apps[0]) {
+							for (var i = 0, app; app = _apps[i]; i++) {
+								app.logs = [];
+								apps.save(app, {w:0});
+							}
+							res.send(200);
+						} else {
+							res.send(err ? 500 : 404);
+						}
+					});
+				});
+			}
+		});
+
+		res.send(200);
+	} else {
+		res.send(403);
+	}
 });
 
 io.sockets.on('connection', function(socket) {

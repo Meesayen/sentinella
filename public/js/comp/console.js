@@ -82,7 +82,6 @@ define([
 						|| !item) {
 					messageChunks.push('' + item);
 				} else {
-					console.log(item);
 					var id = objectMap.length;
 					objectMap.push(item);
 					messageChunks.push(x.render('log.reference', {
