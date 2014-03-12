@@ -1,7 +1,7 @@
 Sentinella
 ===================
 
-Sentinella is just a simple remote asynchronous logging system, complete with a web console service written on top of node.js, and a logger module that works with the anywhere (may not be true! :3)
+Sentinella is just a simple remote asynchronous logging system, complete with a web console service written on top of node.js, and a logger module that works with every browsers anywhere (may not be true! :3)
 
 I started developing Sentinella to remotely debug my applications on devices like the Samsung SmartTV, where you cannot rely entirely on the emulator to fix some obscure bugs.
 
