@@ -1,0 +1,24 @@
+language: node_js
+node_js:
+  - "0.10"
+
+before_install:
+  - export CHROME_BIN=chromium-browser
+  - export DISPLAY=:99.0
+  - sh -e /etc/init.d/xvfb start
+  - sudo apt-get update -qq
+
+before_script:
+  - npm install -g karma karma-cli
+
+# before_deploy:
+# 	- gulp production
+
+# deploy:
+#   provider: nodejitsu
+#   user: meesayen
+#   skip_cleanup: true
+#   api_key:
+#     secure: BMWF/uLpZ8a5zWDzRrRVO1FjQe1gKr9DC9nT4TtZyq9X0Zhwso2wWGnYnUZyaPMNn5yJNZdpq28lwu57ioGiiD03NRR9IeQj5i6bi9rEVLeXmCV7eB5d8GzDiCH5xOrnx+dNPLdrgyVbnMPXXL1Uf5x97pUMN1fugdC+4D/rAFs=
+#   on:
+#     repo: Meesayen/sentinella

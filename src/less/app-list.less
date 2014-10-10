@@ -1,0 +1,142 @@
+#sentinel aside {
+  -webkit-flex: 1;
+  max-width: 200px;
+  min-width: 130px;
+  height: auto;
+  margin: 0 15px;
+  -webkit-user-select: none;
+}
+#sentinel aside .apps-list-label {
+  display: inline-block;
+  padding: 8px 0 5px 0;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: rgba(43, 43, 43, 0.8);
+  text-shadow: 0 1px rgba(255, 255, 255, 0.7);
+  box-sizing: border-box;
+  width: 100%;
+  text-transform: uppercase;
+  background: rgb(231, 240, 255);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-bottom: none;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.8), 0 2px 1px 0px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  border-radius: 3px 3px 0 0;
+  height: 30px;
+}
+#apps {
+  width: 100%;
+  height: auto;
+  box-sizing: border-box;
+  background: whiteSmoke;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 1px;
+  box-shadow: inset 0 1px 3px 1px rgba(0, 0, 0, 0.1);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+#apps .app {
+  position: relative;
+}
+#apps .app .filters {
+  position: absolute;
+  top: 6px;
+  right: 5px;
+  font-family: serif;
+  font-style: italic;
+  padding: 0;
+  width: 81px;
+}
+#apps .app .filters .filter {
+  display: block;
+  margin-left: 3px;
+  float: left;
+  cursor: pointer;
+  height: 24px;
+  width: 24px;
+  padding: 0;
+  text-align: center;
+  line-height: 23px;
+  border-radius: 3px;
+  color: rgba(0, 0, 0, 0.8);
+  text-shadow: 0 1px white;
+  position: relative;
+  top: 0;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+}
+#apps .app .filters .filter[data-state="on"] {
+  color: #00ABD6;
+}
+#apps .app:last-child label {
+  border-bottom: none;
+}
+#apps .app input {
+  display: none;
+}
+#apps .app input:checked ~ label {
+  background-color: rgba(122, 245, 245, 0.6);
+}
+#apps .app input:checked ~ .filters .filter {
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.8), 0 0px 1px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+}
+#apps .app input:checked ~ .filters .filter[data-state="on"] {
+  box-shadow: 0 1px rgba(255, 255, 255, 0.8), inset 0 1px 1px rgba(0, 0, 0, 0.3);
+  background: #00f5ff;
+  color: rgba(0, 0, 0, 0.8);
+  border-top: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding-top: 2px;
+}
+#apps .app input:checked ~ .filters .filter[data-state="off"] {
+  background: rgba(49, 27, 3, 0.04);
+}
+#apps .app input ~ .filters .filter:after,
+#apps .app input:checked ~ .filters .filter[data-state="off"]:after {
+    position: absolute;
+    content: attr(data-news);
+    font-size: 9px;
+    background: red;
+    height: 14px;
+    min-width: 12px;
+    padding-right: 1px;
+    border-radius: 2px;
+    color: rgba(255, 252, 247, 0.95);
+    font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
+    font-style: initial;
+    line-height: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.41), 0 1px 1px 0px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+    top: -5px;
+    right: -3px;
+    opacity: 0;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.31);
+    font-weight: bold;
+}
+#apps .app input:checked ~ .filters .filter[data-state="on"]:after {
+  opacity: 0 !important;
+}
+#apps .app input ~ .filters .filter.has-new:after,
+#apps .app input:checked ~ .filters .filter.has-new:after {
+  opacity: 1;
+}
+#apps .app label {
+  display: block;
+  cursor: pointer;
+  padding: 9px 12px;
+  color: rgba(0, 0, 0, 0.7);
+  font-size: 13px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+#apps .app label:hover {
+  background-color: rgba(195, 250, 255, 0.53);
+}
+#apps .app label:active {
+  background-color: rgba(167, 238, 245, 0.7);
+  box-shadow: inset 0 2px 3px -1px rgba(0, 0, 0, 0.2);
+  padding: 10px 12px 8px 12px;
+}
