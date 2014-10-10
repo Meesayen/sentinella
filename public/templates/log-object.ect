@@ -1,7 +1,0 @@
-<% for k, v of @map: %>
-	<% if typeof v == 'object': %>
-		<span><%- k %></span>: <span class="type-object"><%- JSON.stringify(v) %></span><br />
-	<% else: %>
-		<span><%- k %></span>: <span class="type-<%- typeof v %>"><%- v %></span><br />
-	<% end %>
-<% end %>
