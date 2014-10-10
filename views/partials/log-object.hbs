@@ -1,0 +1,9 @@
+{{#each map}}
+	{{#ifIsObject this}}
+		<span>{{or @key @index}}</span>: <span class="type-object">{{stringify this}}</span>
+		<br />
+	{{else}}
+		<span>{{or @key @index}}</span>: <span class="type-{{typeof this}}">{{this}}</span>
+		<br />
+	{{/ifIsObject}}
+{{/each}}
